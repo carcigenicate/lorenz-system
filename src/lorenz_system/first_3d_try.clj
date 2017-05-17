@@ -1,7 +1,9 @@
-(ns lorenz-system.first-try
+(ns lorenz-system.first-3d-try
   (:require [quil.core :as q]
             [quil.middleware :as m]
             [helpers.general-helpers :as g]))
+
+; Need to figure out how to use 3D
 
 (def width 2500)
 (def height 1500)
