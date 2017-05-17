@@ -1,8 +1,6 @@
 (ns lorenz-system.lorenz-system
-  (:require [lorenz-system.set-lorenz-state :as lst]
-
-            [helpers.general-helpers :as g]
-            [quil.core :as q]))
+  (:require [lorenz-system.list-lorenz-state :as lst]
+            [lorenz-system.protocols.lorenz-state :as lsP]))
 
 (defrecord Lorenz-System [a b c lorenz-state])
 
@@ -27,13 +25,13 @@
 
   ([lorenz-system step]
    (let [{a :a b :b c :c ls :lorenz-state} lorenz-system
-         [x y z] (lst/last-point ls)]
+         [x y z] (lsP/last-point ls)]
      (next-point a b c x y z step))))
 
 (defn advance-system [lorenz-system step]
   (let [new-point (next-point lorenz-system step)]
     (update lorenz-system :lorenz-state
-            #(lst/add-point % new-point))))
+            #(lsP/add-point % new-point))))
 
 (defn points [lorenz-system]
   (get-in lorenz-system [:lorenz-state :points]))

@@ -4,6 +4,7 @@
 
             [lorenz-system.lorenz-system :as lsy]
             [lorenz-system.control-state :as cs]
+            [lorenz-system.color-schemes :as co]
 
             [helpers.general-helpers :as g]))
 
@@ -20,27 +21,34 @@
 (def start-z 3)
 
 (def a 10) ; 10
-(def b 5) ; 28
-(def c 0.1) ; 8/3
+(def b 28) ; 28
+(def c 8/3) ; 8/3
 
 (def rand-gen (g/new-rand-gen 99))
 
 (defrecord Animation-State [lorenz-system control-state])
 
-(defn apply-controls [anim-state step]
+(defn default-controls []
+  (-> (cs/new-controls)
+      (cs/set-rotations 0 0 0)
+      (cs/set-scale 15)))
+
+(defn apply-controls
+  "Applies the transformations defined by the animation state.
+  Does not modify the state. Returns it unchanged so it can be threaded."
+  [anim-state]
   (let [{xr :x-rotation yr :y-rotation zr :z-rotation s :scale} (:control-state anim-state)]
     (q/rotate-x xr)
     (q/rotate-y yr)
     (q/rotate-z zr)
 
-    (q/scale s)))
+    (q/scale s)
+
+    anim-state))
 
 (defn advance-animation [state step]
   (update state :lorenz-system
           #(lsy/advance-system % step)))
-
-(defn wrap-color [hue]
-  (g/unsafe-wrap hue 0 255))
 
 (defn draw-system [lorenz-system hue-f]
   (let [points (lsy/points lorenz-system)]
@@ -58,7 +66,7 @@
   ; TODO: Pass a new Lorenz-System and Control-State once written
 
   (->Animation-State (lsy/new-system a b c start-x start-y start-z)
-                     (cs/new-controls)))
+                     (default-controls)))
 
 (defn update-state [state]
   (when (zero? (rem (q/frame-count) 100))
@@ -69,12 +77,13 @@
 
 (defn draw-state [anim-state]
   (let [{ls :lorenz-system cs :control-state} anim-state
-        w #(g/unsafe-wrap % 0 255)
-        h #(rem (+ (* % 3) (* %2 2) (* %3 1)) 255)]
-    (q/background 0 100 100)
+        hue-f #(co/scaled-location % %2 %3 10)]
+
+    (q/background 0 0 240)
 
     (q/with-translation [(/ width 2) (/ height 2)]
-      (draw-system ls h))))
+      (apply-controls anim-state)
+      (draw-system ls hue-f))))
 
 (defn -main []
   (q/defsketch Lorenz-System-Demo
