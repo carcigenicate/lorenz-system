@@ -69,10 +69,10 @@
 (defn draw-state [{points :points rotation :rotation}]
   (let [w #(wrap % 0 255)
         h #(rem (+ (* % 3) (* %2 2) (* %3 1)) 255)]
-    (q/background 0 100 100)
+    (q/background 0 0 200)
 
     (q/with-translation [(/ width 2) (/ height 2)]
-      (q/scale 8)
+      (q/scale 15)
       (q/rotate-y rotation)
 
       (q/begin-shape)
