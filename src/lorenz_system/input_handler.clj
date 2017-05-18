@@ -19,29 +19,33 @@
   (let [u update
         c control-state
         r rotation-speed
-        t translation-speed]
+        t translation-speed
+
+        ; Shortcuts for updating certain dimensions. 0 = x, 1 = y, 2 = z
+        ut #(update-in c [:translations %] %2)
+        ur #(update-in c [:rotations %] %2)]
 
     (case key
-      \i (u c :y-translation #(+ % t))
-      \k (u c :y-translation #(- % t))
+      \j (ut 0 #(+ % t))
+      \l (ut 0 #(- % t))
 
-      \j (u c :x-translation #(+ % t))
-      \l (u c :x-translation #(- % t))
+      \i (ut 1 #(+ % t))
+      \k (ut 1 #(- % t))
 
-      \a (u c :y-rotation #(- % r))
-      \d (u c :y-rotation #(+ % r))
+      \z (ut 2 #(+ % scale-speed))
+      \x (ut 2 #(- % scale-speed))
 
-      \w (u c :x-rotation #(- % r))
-      \s(u c :x-rotation #(+ % r))
+      \w (ur 0 #(- % r))
+      \s (ur 0 #(+ % r))
 
-      \q (u c :z-rotation #(- % r))
-      \e (u c :z-rotation #(+ % r))
+      \a (ur 1 #(- % r))
+      \d (ur 1 #(+ % r))
+
+      \q (ur 2 #(- % r))
+      \e (ur 2 #(+ % r))
 
       \space (-> c
-                 (cs/set-rotations 0 0 0)
-                 (cs/set-translation 0 0))
-
-      \z (u c :scale #(+ % scale-speed))
-      \x (u c :scale #(- % scale-speed))
+                 (assoc :translations [0 0 0])
+                 (assoc :rotations [0 0 0]))
 
       control-state)))

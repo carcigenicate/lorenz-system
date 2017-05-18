@@ -37,9 +37,7 @@
 (defrecord Animation-State [lorenz-system control-state key-manager])
 
 (defn default-controls []
-  (-> (cs/new-controls)
-      (cs/set-rotations 0 0 0)
-      (cs/set-scale 20)))
+  (cs/new-controls))
 
 (defn make-constants [cons-type]
   (if (string? cons-type)
@@ -48,19 +46,15 @@
     (apply lc/->Lorenz-Constants cons-type)))
 
 (defn apply-controls
-  "Applies the transformations defined by the animation state.
-  Does not modify the state. Returns it unchanged so it can be threaded."
-  [anim-state]
-  (let [{xt :x-translation yt :y-translation
-         xr :x-rotation yr :y-rotation zr :z-rotation
-         s :scale} (:control-state anim-state)]
-    (q/translate xt yt s)
+  "Applies the transformations defined by the controls"
+  [controls]
+  (let [{[xt yt zt] :translations
+         [xr yr zr] :rotations} controls]
+    (q/translate xt yt zt)
 
     (q/rotate-x xr)
     (q/rotate-y yr)
-    (q/rotate-z zr)
-
-    anim-state))
+    (q/rotate-z zr)))
 
 (defn advance-animation [state]
   (update state :lorenz-system
@@ -92,6 +86,7 @@
 (defn update-state [state]
   (when (zero? (rem (q/frame-count) 500))
     (println (-> state :lorenz-system :state :points (count))))
+
   (-> state
       (advance-animation)
       (affect-state-with-keys)))
@@ -105,7 +100,6 @@
       (apply-controls anim-state)
 
       ; Scaling prevents the "camera" from cutting out the lines early
-      ;  ... or did? 3 was enough, but now even 5 clips.
       (q/scale 10)
 
       (draw-system ls hue-f))))
