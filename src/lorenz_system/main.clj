@@ -15,19 +15,17 @@
 (def width 2500)
 (def height 1500)
 
-(def time-step 0.01)
+(def time-step 0.001)
 
-(def line-weight 5)
+(def line-weight 3)
 
 (def start-x 1)
 (def start-y 2)
 (def start-z 3)
 
-(def a 20) ; 10
-(def b 50) ; 28
-(def c 1) ; 8/3
-
-; Cool "trumpet": t:0.01 a:20 b:50 c:1
+(def a 10) ; 10
+(def b 28) ; 28
+(def c 8/3) ; 8/3
 
 (def rand-gen (g/new-rand-gen 99))
 
@@ -57,7 +55,7 @@
 
 (defn advance-animation [state step]
   (update state :lorenz-system
-          #(lsy/advance-system % step)))
+          #(lsy/advance-system %)))
 
 (defn affect-state-with-keys [anim-state]
   (update anim-state :control-state
@@ -78,13 +76,13 @@
   (q/no-fill)
   (q/color-mode :hsb)
 
-  (->Animation-State (lsy/new-system a b c start-x start-y start-z)
+  (->Animation-State (lsy/new-system a b c time-step start-x start-y start-z)
                      (default-controls)
                      (k/new-key-manager)))
 
 (defn update-state [state]
   (when (zero? (rem (q/frame-count) 500))
-    (println (-> state :lorenz-system :lorenz-state :points (count))))
+    (println (-> state :lorenz-system :state :points (count))))
   (-> state
       (advance-animation time-step)
       (affect-state-with-keys)))
@@ -98,7 +96,7 @@
       (apply-controls anim-state)
 
       ; Scaling prevents the "camera" from cutting out the lines early
-      (q/scale 3)
+      (q/scale 5)
 
       (draw-system ls hue-f))))
 

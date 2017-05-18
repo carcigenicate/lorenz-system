@@ -1,11 +1,12 @@
 (ns lorenz-system.lorenz-system
   (:require [lorenz-system.list-lorenz-state :as lst]
-            [lorenz-system.protocols.lorenz-state :as lsP]))
+            [lorenz-system.protocols.lorenz-state :as lsP]
+            [lorenz-system.Lorenz-Constants :as lc]))
 
-(defrecord Lorenz-System [a b c lorenz-state])
+(defrecord Lorenz-System [constants state])
 
-(defn new-system [a b c initial-x initial-y initial-z]
-  (->Lorenz-System a b c
+(defn new-system [a b c step initial-x initial-y initial-z]
+  (->Lorenz-System (lc/->Lorenz-Constants a b c step)
                    (lst/new-state [initial-x initial-y initial-z])))
 
 (defn next-point
@@ -23,15 +24,16 @@
       (+ y (* dy step))
       (+ z (* dz step))]))
 
-  ([lorenz-system step]
-   (let [{a :a b :b c :c ls :lorenz-state} lorenz-system
+  ([lorenz-system]
+   (let [{c :constants ls :state} lorenz-system
+         {a :a b :b c :c step :step} c
          [x y z] (lsP/last-point ls)]
      (next-point a b c x y z step))))
 
-(defn advance-system [lorenz-system step]
-  (let [new-point (next-point lorenz-system step)]
-    (update lorenz-system :lorenz-state
+(defn advance-system [lorenz-system]
+  (let [new-point (next-point lorenz-system)]
+    (update lorenz-system :state
             #(lsP/add-point % new-point))))
 
 (defn points [lorenz-system]
-  (get-in lorenz-system [:lorenz-state :points]))
+  (get-in lorenz-system [:state :points]))
