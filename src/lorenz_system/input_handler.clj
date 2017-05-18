@@ -3,8 +3,6 @@
             [helpers.general-helpers :as g]
             [quil.core :as q]))
 
-; TODO: Change "scale" to "translation-z"
-
 (def rotation-speed 0.05)
 (def scale-speed 8)
 (def translation-speed 8)
