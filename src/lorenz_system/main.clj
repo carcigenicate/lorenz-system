@@ -15,7 +15,7 @@
 
 ; Either a string to get a pre-saved set of constants,
 ;  or a vector as [a b c step]
-(def system-type [10 28 8/3 0.01])
+(def system-type [10 54 0.1 0.01])
 
 (def width 2500)
 (def height 1500)
@@ -66,13 +66,25 @@
                             i/key-handler
                             %)))
 
+(defmacro try-float-op
+  "Convenience macro that handles \"Value out of range\" exceptions by gracefully closing Quil. Otherwise, Quil attempts to catch it, which causes a mess."
+  [& body]
+  `(try
+     ~@body
+     (catch IllegalArgumentException e
+       (println "Exploded with:" (.getMessage e))
+       (q/exit))))
+
 (defn draw-system [lorenz-system hue-f]
-  (let [points (lsy/points lorenz-system)]
-    (q/begin-shape)
-    (doseq [[x y z :as point] points]
-      (q/with-stroke (apply hue-f point)
-        (q/vertex x y z)))
-    (q/end-shape)))
+  ; This is the function most likely to explode if the numbers get huge suddenly since
+  ;  this is the function that deals with Quil the most, which uses floats.
+  (try-float-op
+    (let [points (lsy/points lorenz-system)]
+      (q/begin-shape)
+      (doseq [[x y z :as point] points]
+        (q/with-stroke (apply hue-f point)
+          (q/vertex x y z)))
+      (q/end-shape))))
 
  ; -----
 
