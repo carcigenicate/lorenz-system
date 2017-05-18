@@ -24,6 +24,7 @@
         ur #(update-in c [:rotations %] %2)]
 
     (case key
+      ; Translations
       \j (ut 0 #(+ % t))
       \l (ut 0 #(- % t))
 
@@ -33,8 +34,9 @@
       \z (ut 2 #(+ % scale-speed))
       \x (ut 2 #(- % scale-speed))
 
-      \w (ur 0 #(- % r))
-      \s (ur 0 #(+ % r))
+      ; Rotations
+      \w (ur 0 #(+ % r))
+      \s (ur 0 #(- % r))
 
       \a (ur 1 #(- % r))
       \d (ur 1 #(+ % r))
@@ -42,6 +44,7 @@
       \q (ur 2 #(- % r))
       \e (ur 2 #(+ % r))
 
+      ; Reset
       \space (-> c
                  (assoc :translations [0 0 0])
                  (assoc :rotations [0 0 0]))

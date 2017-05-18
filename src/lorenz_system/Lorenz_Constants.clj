@@ -22,5 +22,5 @@
           (slurp (save-path-for save-name))))
 
     (catch FileNotFoundException e
-      (println "Bad file name!")
+      (println "Bad file name! Supplied dummy constants!")
       (->Lorenz-Constants 1 1 1 0.01))))

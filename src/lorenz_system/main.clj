@@ -15,7 +15,7 @@
 
 ; Either a string to get a pre-saved set of constants,
 ;  or a vector as [a b c step]
-(def system-type "cool-trumpet")
+(def system-type [10 28 8/3 0.01])
 
 (def width 2500)
 (def height 1500)
@@ -74,6 +74,8 @@
         (q/vertex x y z)))
     (q/end-shape)))
 
+ ; -----
+
 (defn setup-state []
   (q/stroke-weight line-weight)
   (q/no-fill)
@@ -88,16 +90,17 @@
     (println (-> state :lorenz-system :state :points (count))))
 
   (-> state
-      (advance-animation)
-      (affect-state-with-keys)))
+      (affect-state-with-keys)
+      (advance-animation)))
+
 
 (defn draw-state [anim-state]
-  (let [{ls :lorenz-system} anim-state]
+  (let [{ls :lorenz-system controls :control-state} anim-state]
 
     (q/background 0 0 240)
 
     (q/with-translation [(/ width 2) (/ height 2)]
-      (apply-controls anim-state)
+      (apply-controls controls)
 
       ; Scaling prevents the "camera" from cutting out the lines early
       (q/scale 10)
