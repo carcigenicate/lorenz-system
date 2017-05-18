@@ -3,9 +3,11 @@
             [helpers.general-helpers :as g]
             [quil.core :as q]))
 
+; TODO: Change "scale" to "translation-z"
+
 (def rotation-speed 0.05)
-(def scale-speed 0.3)
-(def translation-speed 20)
+(def scale-speed 8)
+(def translation-speed 8)
 
 (def pi (* 4 (Math/atan 1)))
 (def two-pi (* pi 2))

@@ -17,7 +17,7 @@
 
 (def time-step 0.01)
 
-(def line-weight 2)
+(def line-weight 5)
 
 (def start-x 1)
 (def start-y 2)
@@ -38,7 +38,7 @@
 (defn default-controls []
   (-> (cs/new-controls)
       (cs/set-rotations 0 0 0)
-      (cs/set-scale 15)))
+      (cs/set-scale 20)))
 
 (defn apply-controls
   "Applies the transformations defined by the animation state.
@@ -47,13 +47,11 @@
   (let [{xt :x-translation yt :y-translation
          xr :x-rotation yr :y-rotation zr :z-rotation
          s :scale} (:control-state anim-state)]
-    (q/translate xt yt)
+    (q/translate xt yt s)
 
     (q/rotate-x xr)
     (q/rotate-y yr)
     (q/rotate-z zr)
-
-    (q/scale s)
 
     anim-state))
 
@@ -98,6 +96,10 @@
 
     (q/with-translation [(/ width 2) (/ height 2)]
       (apply-controls anim-state)
+
+      ; Scaling prevents the "camera" from cutting out the lines early
+      (q/scale 3)
+
       (draw-system ls hue-f))))
 
 (defn key-press-handler [state event]
