@@ -20,4 +20,4 @@
   lsP/Lorenz-State
   {:add-point add-point
    :last-point last-point
-   :points last-point})
+   :points points})

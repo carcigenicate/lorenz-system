@@ -5,9 +5,14 @@
 
 (defrecord Lorenz-System [constants state])
 
-(defn new-system [a b c step initial-x initial-y initial-z]
-  (->Lorenz-System (lc/->Lorenz-Constants a b c step)
-                   (lst/new-state [initial-x initial-y initial-z])))
+(defn new-system
+  ([constants initial-x initial-y initial-z]
+   (->Lorenz-System constants
+                    (lst/new-state [initial-x initial-y initial-z])))
+
+  ([a b c step initial-x initial-y initial-z]
+   (new-system (lc/->Lorenz-Constants a b c step)
+               initial-x initial-y initial-z)))
 
 (defn next-point
   ([a b c x y z step]
@@ -36,4 +41,4 @@
             #(lsP/add-point % new-point))))
 
 (defn points [lorenz-system]
-  (get-in lorenz-system [:state :points]))
+  (lsP/points (get lorenz-system :state)))

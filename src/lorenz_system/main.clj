@@ -6,30 +6,33 @@
             [lorenz-system.control-state :as cs]
             [lorenz-system.color-schemes :as co]
             [lorenz-system.input-handler :as i]
+            [lorenz-system.Lorenz-Constants :as lc]
 
             [helpers.general-helpers :as g]
             [helpers.key-manager :as k]))
 
 ; TODO: Make hue-f part of anim-state. Toggle via keys.
 
+; Either a string to get a pre-saved set of constants,
+;  or a vector as [a b c step]
+(def system-type "cool-trumpet")
+
 (def width 2500)
 (def height 1500)
-
-(def time-step 0.001)
 
 (def line-weight 3)
 
 (def start-x 1)
-(def start-y 2)
-(def start-z 3)
+(def start-y 1)
+(def start-z 1)
 
-(def a 10) ; 10
-(def b 28) ; 28
-(def c 8/3) ; 8/3
+(declare make-constants)
+
+(def constants (delay (make-constants system-type)))
 
 (def rand-gen (g/new-rand-gen 99))
 
-(def hue-f #(co/test1 % %2 %3 (g/random-double 1 1.1 rand-gen) 1.7))
+(def hue-f #(co/test1 % %2 %3 (g/random-double 1 1.05 rand-gen) 1.7))
 
 (defrecord Animation-State [lorenz-system control-state key-manager])
 
@@ -37,6 +40,12 @@
   (-> (cs/new-controls)
       (cs/set-rotations 0 0 0)
       (cs/set-scale 20)))
+
+(defn make-constants [cons-type]
+  (if (string? cons-type)
+    (lc/load-constants cons-type)
+
+    (apply lc/->Lorenz-Constants cons-type)))
 
 (defn apply-controls
   "Applies the transformations defined by the animation state.
@@ -53,7 +62,7 @@
 
     anim-state))
 
-(defn advance-animation [state step]
+(defn advance-animation [state]
   (update state :lorenz-system
           #(lsy/advance-system %)))
 
@@ -76,7 +85,7 @@
   (q/no-fill)
   (q/color-mode :hsb)
 
-  (->Animation-State (lsy/new-system a b c time-step start-x start-y start-z)
+  (->Animation-State (lsy/new-system @constants start-x start-y start-z)
                      (default-controls)
                      (k/new-key-manager)))
 
@@ -84,7 +93,7 @@
   (when (zero? (rem (q/frame-count) 500))
     (println (-> state :lorenz-system :state :points (count))))
   (-> state
-      (advance-animation time-step)
+      (advance-animation)
       (affect-state-with-keys)))
 
 (defn draw-state [anim-state]
@@ -96,7 +105,8 @@
       (apply-controls anim-state)
 
       ; Scaling prevents the "camera" from cutting out the lines early
-      (q/scale 5)
+      ;  ... or did? 3 was enough, but now even 5 clips.
+      (q/scale 10)
 
       (draw-system ls hue-f))))
 
